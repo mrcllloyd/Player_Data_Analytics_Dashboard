@@ -29,7 +29,7 @@ def load_data():
         elif row['wageramount'] < 25000:
             return "Amber (At Risk)"
         elif row['wageramount'] < 100000:
-            return "Red (Pathological)"
+            return "Red (High Risk)"
         else:
             return "STOP (Exclude)"
     merged['risk_level'] = merged.apply(classify_risk, axis=1)
