@@ -134,17 +134,6 @@ kyc_summary = pd.DataFrame({
 conversion_rate = len(verified_players) / len(player_info) * 100 if len(player_info) > 0 else 0
 st.metric("✅ KYC Conversion Rate", f"{conversion_rate:.2f}%")
 
-if not verified_players.empty:
-    kyc_timeline = verified_players.copy()
-    kyc_timeline['verify_date'] = pd.to_datetime(kyc_timeline['verify_date'], errors='coerce')
-    timeline_summary = (
-        kyc_timeline.groupby(kyc_timeline['verify_date'].dt.to_period("M"))
-        .size().reset_index(name='verified_count')
-    )
-    timeline_summary['verify_date'] = timeline_summary['verify_date'].dt.to_timestamp()
-    if not timeline_summary.empty:
-        st.subheader("📆 Verified Players Over Time")
-        st.line_chart(timeline_summary.set_index('verify_date')['verified_count'])
 
 player_info['kyc_days'] = (player_info['verify_date'] - player_info['registered_date']).dt.days
 valid_durations = player_info[player_info['kyc_days'].notnull() & (player_info['kyc_days'] >= 0)]
