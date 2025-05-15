@@ -1,4 +1,4 @@
-# ⚙️ Imports
+# Imports
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,7 +7,7 @@ from fpdf import FPDF
 from rapidfuzz import fuzz
 import tempfile
 
-# 🧮 Load and Merge Data
+# Load and Merge Data
 @st.cache_data
 def load_data():
     player_info = pd.read_csv("player_info.csv")
@@ -37,7 +37,7 @@ def load_data():
 
 merged_df, player_info = load_data()
 
-# 🎛️ Sidebar Filters
+#  Sidebar Filters
 st.sidebar.title("Filters")
 date_range = st.sidebar.date_input("Date Range", [merged_df['reportdate'].min(), merged_df['reportdate'].max()])
 sp_options = ['All'] + sorted(merged_df['SP_NAME'].dropna().unique().tolist())
@@ -48,7 +48,7 @@ filtered = merged_df[(merged_df['reportdate'] >= start_date) & (merged_df['repor
 if selected_sp != 'All':
     filtered = filtered[filtered['SP_NAME'] == selected_sp]
 
-# 🧭 Granularity
+#  Granularity
 days_range = (end_date - start_date).days
 if days_range <= 7:
     granularity = 'Daily'
@@ -66,7 +66,7 @@ else:
 st.title(" Player Risk Dashboard")
 st.write(f"📅 Date Range: {start_date.date()} to {end_date.date()} | SP_NAME: {selected_sp} | Granularity: {granularity}")
 
-# 📈 Wager Summary
+#  Wager Summary
 summary = filtered.groupby('period').agg(
     total_players=('playerid', 'nunique'),
     total_wager=('wageramount', 'sum'),
@@ -75,7 +75,7 @@ summary = filtered.groupby('period').agg(
 st.subheader(f"📈 Wager Trend Over Time for {selected_sp}")
 st.line_chart(summary.set_index('period')['total_wager'])
 
-# 🚩 Risk Flags
+#  Risk Flags
 player_metrics = filtered.groupby(['playerid', 'occupation']).agg(
     total_sessions=('wagernum', 'sum'),
     total_wager=('wageramount', 'sum'),
@@ -106,14 +106,14 @@ st.subheader("📊 Risk Level Distribution")
 st.dataframe(risk_summary)
 st.bar_chart(filtered['risk_level'].value_counts())
 
-# 🏅 Top Players
+#  Top Players
 st.subheader(f" Top 10 Players by Wager for {selected_sp}")
 top_players = filtered.sort_values(by='wageramount', ascending=False).head(10)[[
     'playerid', 'gamename', 'wageramount', 'holdamount', 'risk_level', 'occupation'
 ]]
 st.dataframe(top_players)
 
-# 🔐 KYC Analysis
+#  KYC Analysis
 st.subheader("📌 KYC Status Analysis")
 player_info['registered_date'] = pd.to_datetime(player_info['registered_date'], errors='coerce')
 player_info['verify_date'] = pd.to_datetime(player_info['verify_date'], errors='coerce')
@@ -150,7 +150,7 @@ ax.bar(kyc_summary['Status'], kyc_summary['Player Count'], color=['green', 'red'
 ax.set_title("KYC Verification Summary")
 st.pyplot(fig_kyc)
 
-# 🧠 Fuzzy Matching
+#  Fuzzy Matching
 st.subheader("🧠 Fuzzy Matching: Possible Duplicate Accounts")
 expected_columns = ['first_name', 'last_name', 'email_address', 'username', 'contact_information']
 identity_columns = [col for col in expected_columns if col in player_info.columns]
@@ -180,7 +180,7 @@ if not fuzzy_df.empty:
 else:
     st.info("No highly similar player profiles detected.")
 
-# 📄 PDF Export
+#  PDF Export
 st.markdown("---")
 if st.button("📄 Download Full Dashboard as PDF"):
     pdf = FPDF()
